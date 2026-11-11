@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fatesck - Login do Professor</title>
+    <link rel="stylesheet" href="../css/base.css">
+</head>
+<body>
+    <main class="entrada">
+        <div class="cartao-entrada">
+            <img src="../midia/logo.png" alt="Logo Fatesck" class="logo">
+            <h1 id="titulo">Login do Professor</h1>
+            <p class="mudo">Entre com seus dados para continuar</p>
+            <form id="form-login" novalidate>
+                <div class="campo" id="campo-nome" hidden><label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" placeholder="Seu nome completo" autocomplete="name"></div>
+                <div class="campo"><label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="nome@exemplo.com" autocomplete="username" required></div>
+                <div class="campo"><label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Digite sua senha" autocomplete="current-password" required></div>
+                <p class="erro" id="erro" role="alert"></p>
+                <div class="acoes">
+                    <button type="submit" class="botao" id="btn-enviar">Entrar</button>
+                    <button type="button" class="botao sec" id="btn-alternar">Criar conta</button>
+                    <button type="button" class="botao sec" id="btn-voltar">Voltar</button>
+                </div>
+            </form>
+        </div>
+    </main>
+    <script type="module" src="script.js"></script>
+</body>
+</html>

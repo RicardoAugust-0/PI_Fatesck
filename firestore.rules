@@ -1,0 +1,37 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function logado() { return request.auth != null; }
+    function perfil() { return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.perfil; }
+    function professor() { return logado() && perfil() == "professor"; }
+    function aluno() { return logado() && perfil() == "aluno"; }
+
+    // Perfil de cada pessoa: só ela mesma lê e escreve.
+    // O campo "perfil" é definido no cadastro e não pode ser alterado depois.
+    match /usuarios/{userId} {
+      allow read: if logado() && request.auth.uid == userId;
+      allow create: if logado() && request.auth.uid == userId
+                    && request.resource.data.perfil in ["aluno", "professor"];
+      allow update: if logado() && request.auth.uid == userId
+                    && request.resource.data.perfil == resource.data.perfil;
+    }
+
+    // Conteúdo compartilhado: qualquer pessoa logada lê, só professor escreve.
+    match /disciplinas/{id} { allow read: if logado(); allow write: if professor(); }
+    match /turmas/{id}      { allow read: if logado(); allow write: if professor(); }
+    match /atividades/{id}  { allow read: if logado(); allow write: if professor(); }
+    match /avisos/{id}      { allow read: if logado(); allow write: if professor(); }
+
+    // Entregas: o aluno cria e vê as próprias; o professor vê todas e corrige.
+    match /envios/{id} {
+      allow create: if aluno() && request.resource.data.alunoUid == request.auth.uid
+                    && request.resource.data.status == "pendente";
+      allow read: if professor() || (logado() && resource.data.alunoUid == request.auth.uid);
+      allow update: if professor();
+    }
+
+    // Todo o resto fica bloqueado por padrão
+  }
+}

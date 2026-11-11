@@ -1,93 +1,48 @@
-# Fatesck — frontend acadêmico
+# Fatesck
 
-Base funcional de uma plataforma educacional, criada a partir dos documentos enviados. Visual simples de portal acadêmico; componentes React e tipos TypeScript. Não é um sistema pronto para produção.
+Portal acadêmico em **HTML, CSS e JavaScript puro**, com **Firebase** (Authentication + Firestore) como banco.
 
-## Executar em seu computador
-
-1. Instale o **Node.js 22 LTS** com npm.
-2. Extraia este ZIP e abra a pasta `fatesck` no VS Code.
-3. No terminal dessa pasta, execute:
+## Rodar
 
 ```bash
-npm ci
-npm run dev
+npm install
+npm start        # abre com live-server em http://127.0.0.1:8080
 ```
 
-4. Acesse **http://localhost:3000**.
-5. Escolha um perfil e clique em **Entrar na demonstração**. Não há senha nem cadastro real.
+> Os scripts usam `type="module"`, então as páginas precisam ser servidas por HTTP (não funciona abrindo o arquivo direto com duplo clique).
 
-Para validar e visualizar a versão compilada:
+## Estrutura
 
-```bash
-npm run typecheck
-npm run build
-npm start
+```
+inicio/               tela de escolha (Aluno / Professor)
+login_aluno/          login e cadastro do aluno
+login_professor/      login e cadastro do professor
+inicial_aluno/        área do aluno (início, disciplinas, atividades, notificações)
+inicial_professor/    área do professor (início, turmas, atividades, correções, avisos)
+css/base.css          estilos
+js/firebase.js        configuração do Firebase (SDK via CDN)
+js/auth.js            login, cadastro, sessão e logout
+js/dados.js           leitura/escrita no Firestore
+js/app.js             monta o layout e as páginas internas
+firestore.rules       regras de segurança do Firestore
 ```
 
-Não abra `out/index.html` com duplo clique: os arquivos do Next.js precisam ser servidos por HTTP. O comando `npm start` inclui um servidor local sem dependências extras. Encerre o servidor de desenvolvimento antes de iniciar outro na mesma porta.
+## Firebase
 
-## O que funciona
+No console do projeto `fatesk-3819c`:
 
-- Seleção de perfil demonstrativo: aluno, professor ou administrador.
-- Painel com turmas, pendências, entregas e média calculada.
-- Busca de turmas e detalhes com horários e atividades.
-- Busca e filtros de atividades por turma e status.
-- Entrega de atividade por texto ou link; edição antes da avaliação.
-- Professor: criação de turmas e atividades, nota de 0 a 10 e feedback.
-- Mensagens separadas por turma, enviadas e mantidas localmente.
-- Administrador: visualização de contas fictícias e alteração demonstrativa de status.
-- Troca de perfil, restauração confirmada dos dados e interface responsiva.
-- Persistência no navegador e aviso quando não for possível salvar.
+1. **Authentication → Método de login**: ative **E-mail/senha**.
+2. **Firestore Database**: crie o banco e cole o conteúdo de `firestore.rules` na aba **Regras**.
 
-**Os três perfis compartilham os mesmos dados demonstrativos.** Há um aluno fictício e uma professora fictícia responsável por todas as turmas. A troca de perfil permite demonstrar a interação entre eles; não representa autorização real.
+### Coleções
 
-## Roteiro para apresentar na faculdade
+| Coleção       | Quem escreve | Campos principais |
+|---------------|--------------|-------------------|
+| `usuarios`    | o próprio usuário (no cadastro) | `nome`, `email`, `perfil` (`aluno`/`professor`) |
+| `disciplinas` | professor | `nome`, `professor`, `cor` |
+| `turmas`      | professor | `nome`, `disciplina`, `alunos` |
+| `atividades`  | professor | `titulo`, `turma`, `disciplina`, `prazo` (AAAA-MM-DD) |
+| `avisos`      | professor | `turma`, `texto`, `autor` |
+| `envios`      | aluno (entrega) / professor (correção) | `atividadeId`, `atividade`, `alunoUid`, `aluno`, `data`, `status` |
 
-1. Entre como aluno e abra uma atividade pendente.
-2. Envie uma resposta ou link fictício.
-3. Em Configurações, escolha Professor.
-4. Abra a mesma atividade, atribua uma nota e escreva um comentário.
-5. Volte para Aluno e confira o feedback e a média no painel.
-6. Em Mensagens, envie uma mensagem; troque o perfil e responda na mesma turma.
-7. Atualize a página, entre novamente e verifique os dados mantidos no navegador.
-8. Teste a largura de celular. O menu fica no botão do cabeçalho.
-
-A entrada é reiniciada ao atualizar, mas o conteúdo demonstrativo permanece. Para limpar tudo, use Configurações → Restaurar dados de exemplo.
-
-## Organização
-
-- `src/app/page.tsx`: entrada da aplicação.
-- `src/app/layout.tsx`: idioma, metadados e estilo global.
-- `src/app/globals.css`: tokens, estilos e responsividade.
-- `src/components/portal.tsx`: navegação e fluxos da demonstração.
-- `src/components/ui.tsx`: modal acessível, badge e estado vazio.
-- `src/lib/types.ts`: contratos TypeScript.
-- `src/lib/demo-data.ts`: dados fictícios iniciais.
-- `src/lib/demo-repository.ts`: fronteira de persistência local.
-- `scripts/preview.mjs`: servidor local da versão compilada.
-- `scripts/smoke.cjs`: verificação dos fluxos no navegador.
-- `DOCUMENTACAO.md`: escopo, lacunas e plano de evolução.
-- `VALIDACAO.md`: resultados da validação executada.
-- `docs/originais/`: documentos fornecidos, preservados.
-
-Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 4 e ícones Lucide. O estilo fica centralizado em CSS com tokens para facilitar o estudo. O Tailwind está configurado e pode ser usado nos próximos componentes. Foi mantido estado React simples nesta primeira versão; Zustand, React Query, React Hook Form e Zod podem ser introduzidos conforme o backend e os formulários crescerem.
-
-## O que ainda não existe
-
-- Backend NestJS, banco PostgreSQL, Prisma, API e autenticação.
-- JWT, cookies de sessão, permissões verificadas no servidor e OAuth.
-- Criptografia ponta a ponta, geração/armazenamento de chaves e assinaturas.
-- Upload/download de arquivos e armazenamento MinIO/S3.
-- Chat entre dispositivos e WebSocket.
-- Cadastro real, matrículas, múltiplos alunos e recuperação de conta.
-- CI/CD, requisitos de disponibilidade, performance ou cobertura de 80%.
-
-As mensagens e entregas locais ficam **em texto claro**. Use somente informações fictícias. A seleção de perfis e o status dos usuários são demonstrativos; desativar um usuário não impede testar seu perfil.
-
-## Dados a substituir
-
-Usuários, disciplinas, horários, orientações e respostas são exemplos. Os prazos iniciais são relativos ao primeiro acesso. O visual e o símbolo foram criados para a demonstração, sem associação visual oficial com uma instituição.
-
-## Próximo passo
-
-Definir os requisitos funcionais e o modelo de dados com o grupo. Separar as telas de `portal.tsx` em módulos por domínio e trocar `demo-repository.ts` por serviços assíncronos da API, mantendo os contratos tipados. Consulte `DOCUMENTACAO.md` antes de implementar autenticação ou criptografia.
+Com o banco vazio, o professor vê na tela inicial o botão **Criar dados de exemplo**, que cadastra disciplinas e turmas iniciais.
